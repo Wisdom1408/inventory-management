@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for development
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: inventory_db
+      POSTGRES_USER: inventory_user
+      POSTGRES_PASSWORD: dev_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Django Backend in development mode
+  backend:
+    build: ./backend
+    environment:
+      - DEBUG=True
+      - DB_ENGINE=django.db.backends.postgresql
+      - DB_NAME=inventory_db
+      - DB_USER=inventory_user
+      - DB_PASSWORD=dev_password
+      - DB_HOST=db
+      - DB_PORT=5432
+      - SECRET_KEY=dev-secret-key-not-for-production
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  postgres_dev_data:

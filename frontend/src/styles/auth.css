@@ -1,0 +1,254 @@
+/* Authentication styles */
+.user-info {
+  display: flex;
+  align-items: center;
+  margin-right: 1rem;
+}
+
+.welcome-text {
+  color: #4a5568;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.register-card {
+  max-width: 500px;
+  width: 100%;
+}
+
+.register-form {
+  gap: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+}
+
+/* Error Boundary styles */
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #f7fafc;
+}
+
+.error-boundary-content {
+  text-align: center;
+  max-width: 500px;
+  background: white;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.error-icon {
+  color: #e53e3e;
+  margin-bottom: 1.5rem;
+}
+
+.error-boundary h2 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.error-boundary p {
+  color: #718096;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.error-details {
+  text-align: left;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.error-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+}
+
+.error-stack {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: #718096;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.error-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.error-actions .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.error-actions .btn-primary {
+  background: #5a67d8;
+  color: white;
+}
+
+.error-actions .btn-primary:hover {
+  background: #4c51bf;
+}
+
+.error-actions .btn-secondary {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.error-actions .btn-secondary:hover {
+  background: #cbd5e0;
+}
+
+/* Loading Spinner styles */
+.loading-spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  border: 3px solid #e2e8f0;
+  border-top: 3px solid #5a67d8;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.spinner-small .spinner {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+}
+
+.spinner-medium .spinner {
+  width: 32px;
+  height: 32px;
+}
+
+.spinner-large .spinner {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+.loading-text {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Loading states for components */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  min-height: 200px;
+}
+
+.loading-container p {
+  margin-top: 1rem;
+  color: #718096;
+}
+
+/* Access denied styles */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  text-align: center;
+  min-height: 400px;
+}
+
+.error-container h2 {
+  color: #e53e3e;
+  margin-bottom: 1rem;
+}
+
+.error-container p {
+  color: #718096;
+  max-width: 400px;
+  line-height: 1.6;
+}

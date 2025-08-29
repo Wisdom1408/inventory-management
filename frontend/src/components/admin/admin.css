@@ -1,0 +1,349 @@
+
+/* Admin Console Styles */
+
+.admin-console-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem;
+  color: #333;
+}
+
+.admin-console-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.admin-console-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.admin-console-subtitle {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Admin Tabs */
+.admin-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.admin-tab:hover {
+  color: var(--primary-color);
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.admin-tab.active {
+  color: var(--primary-color);
+  font-weight: 600;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.admin-tab svg {
+  color: currentColor;
+}
+
+/* Admin Subtabs */
+.admin-subtabs {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background-color: var(--bg-white);
+  padding: 0.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-subtab {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.admin-subtab:hover {
+  color: var(--primary-color);
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.admin-subtab.active {
+  color: var(--bg-white);
+  background-color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* Admin Content */
+.admin-content {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Admin Section */
+.admin-section {
+  background-color: var(--bg-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.admin-section-header {
+  margin-bottom: 2rem;
+}
+
+.admin-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.admin-section-description {
+  color: #333;
+  font-size: 0.875rem;
+}
+
+/* Admin Form */
+.admin-form-container {
+  background-color: var(--bg-light);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-form-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.admin-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-form-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.admin-form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.admin-form-checkbox input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary-color);
+}
+
+.admin-form-checkbox label {
+  font-size: 0.875rem;
+  color: #333;
+}
+
+/* Admin List */
+.admin-list-container {
+  background-color: var(--bg-white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-list-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin: 0;
+}
+
+.admin-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.admin-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #333;
+}
+
+.admin-empty-icon {
+  width: 4rem;
+  height: 4rem;
+  color: #333;
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+
+/* Admin Table */
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.admin-table th {
+  background-color: var(--bg-light);
+  color: #333;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+  color: #333;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tr:hover td {
+  background-color: rgba(79, 70, 229, 0.05);
+}
+
+.admin-table-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-action-button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+.status-badge.active {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.status-badge.inactive {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.status-badge.staff {
+  background-color: rgba(79, 70, 229, 0.1);
+  color: var(--primary-color);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .admin-form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-tabs {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .admin-tab {
+    justify-content: center;
+  }
+  
+  .admin-subtabs {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .admin-table-actions {
+    flex-direction: column;
+  }
+}
+/* 🔴 Error Message Block */
+.admin-error-message {
+  background-color: #fef2f2;   /* light red */
+  border: 1px solid #fca5a5;   /* soft red border */
+  color: #b91c1c;              /* strong red text */
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.admin-error-message::before {
+  content: "⚠ ";               /* warning icon before text */
+  font-weight: bold;
+}
