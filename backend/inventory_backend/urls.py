@@ -1,4 +1,3 @@
-from django import views
 from django.contrib import admin
 from django.urls import path, include
 
@@ -14,10 +13,6 @@ try:
         path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
         path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
         path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-        path('auth/login/', views.login_view, name='login'),
-        path('auth/register/', views.register_view, name='register'),
-        path('auth/logout/', views.logout_view, name='logout'),
-        path('auth/verify/', views.verify_token, name='verify'),
     ]
 except ImportError:
     pass

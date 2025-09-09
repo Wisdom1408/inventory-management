@@ -2,12 +2,12 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     ItemViewSet, CategoryViewSet, SupplierViewSet,
-    StaffViewSet, StaffItemAssignmentViewSet,UserViewSet
+    StaffViewSet, StaffItemAssignmentViewSet, UserViewSet
 )
 
 from .auth_views import (
     register, login, logout, password_reset_request, 
-    password_reset_confirm, user_profile
+    password_reset_confirm, user_profile, login_view
 )
 
 # Create a router and register our viewsets
@@ -28,4 +28,5 @@ urlpatterns = [
     path('auth/password-reset/', password_reset_request, name='password_reset_request'),
     path('auth/password-reset-confirm/', password_reset_confirm, name='password_reset_confirm'),
     path('auth/profile/', user_profile, name='user_profile'),
+    path('auth/verify/', user_profile, name='verify'),  # Use user_profile as verify endpoint
 ]
