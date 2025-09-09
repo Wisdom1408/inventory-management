@@ -2,7 +2,8 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     ItemViewSet, CategoryViewSet, SupplierViewSet,
-    StaffViewSet, StaffItemAssignmentViewSet,UserViewSet
+    StaffViewSet, StaffItemAssignmentViewSet,UserViewSet,
+    dashboard_stats,
 )
 
 from .auth_views import (
@@ -21,6 +22,7 @@ router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),  # all routes go under /api/
+    path('dashboard/stats', dashboard_stats, name='dashboard_stats'),
     # Authentication endpoints
     path('auth/register/', register, name='register'),
     path('auth/login/', login, name='login'),

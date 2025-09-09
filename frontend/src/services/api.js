@@ -21,25 +21,62 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      // Django REST Framework TokenAuthentication expects 'Token <key>'
+      config.headers.Authorization = `Token ${token}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Inventory API endpoints
+// Helper to unwrap axios response consistently
+const unwrap = (p) => p.then((res) => res.data);
+
+// Inventory API endpoints (include categories and suppliers)
 export const inventoryAPI = {
-  getItems: () => api.get('/items/'),
-  createItem: (data) => api.post('/items/', data),
-  updateItem: (id, data) => api.put(`/items/${id}/`, data),
-  deleteItem: (id) => api.delete(`/items/${id}/`)
+  // Items
+  getItems: (page = 1) => unwrap(api.get(`/items/?page=${page}`)),
+  getItem: (id) => unwrap(api.get(`/items/${id}/`)),
+  createItem: (data) => unwrap(api.post('/items/', data)),
+  updateItem: (id, data) => unwrap(api.put(`/items/${id}/`, data)),
+  deleteItem: (id) => unwrap(api.delete(`/items/${id}/`)),
+
+  // Categories
+  getCategories: () => unwrap(api.get('/categories/')),
+  createCategory: (data) => unwrap(api.post('/categories/', data)),
+  updateCategory: (id, data) => unwrap(api.put(`/categories/${id}/`, data)),
+  deleteCategory: (id) => unwrap(api.delete(`/categories/${id}/`)),
+
+  // Suppliers
+  getSuppliers: () => unwrap(api.get('/suppliers/')),
+  createSupplier: (data) => unwrap(api.post('/suppliers/', data)),
+  updateSupplier: (id, data) => unwrap(api.put(`/suppliers/${id}/`, data)),
+  deleteSupplier: (id) => unwrap(api.delete(`/suppliers/${id}/`)),
+
+  // Staff
+  getStaff: (page = 1) => unwrap(api.get(`/staff/?page=${page}`)),
+  getStaffMember: (id) => unwrap(api.get(`/staff/${id}/`)),
+  createStaff: (data) => unwrap(api.post('/staff/', data)),
+  updateStaff: (id, data) => unwrap(api.put(`/staff/${id}/`, data)),
+  deleteStaff: (id) => unwrap(api.delete(`/staff/${id}/`)),
+
+  // Assignments
+  getAssignments: (page = 1) => unwrap(api.get(`/assignments/?page=${page}`)),
+  createAssignment: (data) => unwrap(api.post('/assignments/', data)),
+  updateAssignment: (id, data) => unwrap(api.put(`/assignments/${id}/`, data)),
+  deleteAssignment: (id) => unwrap(api.delete(`/assignments/${id}/`)),
 };
 
-// User API endpoints
+// User API endpoints (admin)
 export const userAPI = {
-  getProfile: () => api.get('/users/profile/'),
-  updateProfile: (data) => api.put('/users/profile/', data)
+  getUsers: (page = 1) => unwrap(api.get(`/users/?page=${page}`)),
+  getUser: (id) => unwrap(api.get(`/users/${id}/`)),
+  createUser: (data) => unwrap(api.post('/users/', data)),
+  updateUser: (id, data) => unwrap(api.put(`/users/${id}/`, data)),
+  deleteUser: (id) => unwrap(api.delete(`/users/${id}/`)),
+  // profile endpoints if needed
+  getProfile: () => unwrap(api.get('/auth/profile/')),
+  updateProfile: (data) => unwrap(api.put('/auth/profile/', data)),
 };
 
 export default api;

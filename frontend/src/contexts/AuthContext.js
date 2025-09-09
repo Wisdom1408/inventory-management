@@ -15,22 +15,32 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('token');
-      
+      const storedUser = localStorage.getItem('user');
+
       if (token) {
+        // Configure axios header for DRF TokenAuthentication
+        api.defaults.headers.common['Authorization'] = `Token ${token}`;
         try {
-          // Set token in auth header
-          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          
-          // Verify token and get user data
-          const response = await authAPI.verify();
-          setUser(response.data.user);
+          // Prefer stored user; if absent we could fetch /auth/profile/
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+          } else {
+            try {
+              const profile = await authAPI.verify(); // optional; may not exist
+              const userData = profile.data?.user || profile.user || null;
+              if (userData) setUser(userData);
+            } catch (_) {
+              // Ignore if verify is not available; user will be set on next login
+            }
+          }
         } catch (error) {
           console.error('Auth initialization failed:', error);
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
           delete api.defaults.headers.common['Authorization'];
         }
       }
-      
+
       setLoading(false);
     };
 
@@ -39,23 +49,29 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     setLoading(true);
-    setError(null); // Reset error state
+    setError(null);
     try {
-      const response = await authAPI.login(credentials);
-      const { token, user } = response.data;
+      const resp = await authAPI.login(credentials);
+      // Support both wrapped and unwrapped responses
+      const data = resp?.data || resp;
+      const token = data.token;
+      const userData = data.user;
 
-      // Set token in auth header
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      if (!token || !userData) {
+        throw new Error('Invalid login response');
+      }
+
+      // Configure axios header for DRF TokenAuthentication
+      api.defaults.headers.common['Authorization'] = `Token ${token}`;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      setUser(user);
-      navigate('/dashboard', { replace: true });
+      localStorage.setItem('user', JSON.stringify(userData));
+
+      setUser(userData);
       Toast.success('Login successful');
-      
-      return response.data;
+      navigate('/dashboard', { replace: true });
+      return data;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      const message = error.response?.data?.error || error.response?.data?.message || 'Login failed';
       setError(message);
       Toast.error(message);
       throw error;
@@ -67,14 +83,15 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await authAPI.logout();
+    } catch (_) {
+      // Ignore server errors on logout
+    } finally {
       delete api.defaults.headers.common['Authorization'];
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       setUser(null);
       Toast.success('Logged out successfully');
       navigate('/login');
-    } catch (error) {
-      Toast.error('Logout failed');
-      throw error;
     }
   };
 

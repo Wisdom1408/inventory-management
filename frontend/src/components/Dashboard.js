@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useApi } from '../hooks/useApi';
+import api from '../services/api';
 import ErrorBoundary from './common/ErrorBoundary';
 import LoadingSpinner from './common/LoadingSpinner';
 import { Chart } from 'react-chartjs-2';
@@ -19,8 +19,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  const api = useApi();
-
+  
   // Add refresh interval state
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState(30000); // 30 seconds
@@ -34,7 +33,7 @@ const Dashboard = () => {
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get('/dashboard/stats', {
+      const { data } = await api.get('/dashboard/stats', {
         params: {
           startDate: dateRange.start.toISOString(),
           endDate: dateRange.end.toISOString()

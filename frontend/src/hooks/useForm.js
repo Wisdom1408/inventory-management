@@ -3,14 +3,36 @@ import * as validators from '../utils/validation';
 
 /**
  * Custom hook for form handling with validation
- * 
- * @param {Object} initialValues - Initial form values
- * @param {Object} validationRules - Validation rules for form fields
- * @param {Function} onSubmit - Function to call on form submission
- * @returns {Object} - Form state and handlers
+ * Supports two calling styles:
+ * 1) useForm(initialValues, validationRules, onSubmit)
+ * 2) useForm({ initialValues, validationRules, onSubmit })
  */
-const useForm = (initialValues, validationRules, onSubmit) => {
-  const [values, setValues] = useState(initialValues);
+const useForm = (arg1, arg2, arg3) => {
+  // Normalize arguments to support both signatures
+  let opts;
+  if (
+    arg1 && typeof arg1 === 'object' && (
+      Object.prototype.hasOwnProperty.call(arg1, 'initialValues') ||
+      Object.prototype.hasOwnProperty.call(arg1, 'validationRules') ||
+      Object.prototype.hasOwnProperty.call(arg1, 'onSubmit')
+    )
+  ) {
+    opts = {
+      initialValues: arg1.initialValues || {},
+      validationRules: arg1.validationRules || {},
+      onSubmit: arg1.onSubmit || (async () => {}),
+    };
+  } else {
+    opts = {
+      initialValues: arg1 || {},
+      validationRules: arg2 || {},
+      onSubmit: arg3 || (async () => {}),
+    };
+  }
+
+  const { initialValues: initialVals, validationRules: rulesConfig, onSubmit: submitFn } = opts;
+
+  const [values, setValues] = useState(initialVals);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,7 +40,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
 
   // Enhanced validation function
   const validateField = useCallback((name, value) => {
-    const rules = validationRules[name];
+    const rules = rulesConfig?.[name];
     if (!rules) return '';
 
     // Use backend-matching validators
@@ -89,7 +111,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
       return rules.maxLengthMessage || `${name} must be no more than ${rules.maxLength} characters`;
     }
 
-    // Email validation (legacy)
+    // Email validation (legacy flag)
     if (rules.email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
@@ -109,7 +131,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
     }
 
     return '';
-  }, [validationRules, values]);
+  }, [rulesConfig, values]);
 
   // Validate form when values change
   useEffect(() => {
@@ -128,7 +150,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
       }
     });
     setErrors(touchedErrors);
-  }, [values, touched, validateField]); // Added validateField
+  }, [values, touched, validateField]);
 
   // Handle field change
   const handleChange = useCallback((e) => {
@@ -156,7 +178,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
       ...prevErrors,
       [name]: error
     }));
-  }, [values, validateField]); // Added validateField
+  }, [values, validateField]);
 
   // Set a specific field value
   const setFieldValue = useCallback((name, value) => {
@@ -185,14 +207,13 @@ const useForm = (initialValues, validationRules, onSubmit) => {
   // Handle form submission
   const handleSubmit = useCallback(async (e) => {
     e && e.preventDefault();
-    
     // Mark all fields as touched
     const allTouched = {};
     Object.keys(values).forEach(field => {
       allTouched[field] = true;
     });
     setTouched(allTouched);
-    
+
     // Validate all fields
     const validationErrors = {};
     Object.keys(values).forEach(name => {
@@ -200,27 +221,27 @@ const useForm = (initialValues, validationRules, onSubmit) => {
       if (error) validationErrors[name] = error;
     });
     setErrors(validationErrors);
-    
+
     // If form is valid, call onSubmit
     if (Object.keys(validationErrors).length === 0) {
       setIsSubmitting(true);
       try {
-        await onSubmit(values);
+        await submitFn(values);
       } catch (error) {
         console.error('Form submission error:', error);
       } finally {
         setIsSubmitting(false);
       }
     }
-  }, [values, onSubmit, validateField]); // Added validateField
+  }, [values, submitFn, validateField]);
 
   // Reset form to initial values
   const resetForm = useCallback(() => {
-    setValues(initialValues);
+    setValues(initialVals);
     setErrors({});
     setTouched({});
     setIsSubmitting(false);
-  }, [initialValues]);
+  }, [initialVals]);
 
   return {
     values,

@@ -7,7 +7,7 @@ import { showToast } from './common/ToastContainer';
 import ErrorBoundary from './common/ErrorBoundary';
 import { useNotifications, NOTIFICATION_TYPES } from '../NotificationSystem';
 import '../styles.css';
-import '../assignment-syles.css'; 
+import '../assignment-syles.css';
 import './common/common.css';
 
 const StaffItemAssignment = () => {
@@ -129,7 +129,7 @@ const StaffItemAssignment = () => {
       } catch (err) {
         const errorMessage = `Failed to fetch data. Please check your API endpoints. Error: ${err.message}`;
         setError(errorMessage);
-        showToast('error', errorMessage);
+        showToast(errorMessage, 'error');
         console.error("API Fetch Error:", err);
       } finally {
         setLoading(false);
@@ -223,7 +223,7 @@ const StaffItemAssignment = () => {
     
     // Check if there are any errors
     if (Object.keys(errors).length > 0) {
-      showToast('error', 'Please fix the form errors before submitting');
+      showToast('Please fix the form errors before submitting', 'error');
       return;
     }
     
@@ -250,7 +250,7 @@ const StaffItemAssignment = () => {
           prev.map(a => a.id === editingAssignment.id ? normalizedUpdated : a)
         );
         
-        showToast('success', "Assignment updated successfully!");
+        showToast('Assignment updated successfully!', 'success');
         
         // Add notification
         addNotification(
@@ -269,7 +269,7 @@ const StaffItemAssignment = () => {
         );
         
         if (isItemAssigned) {
-          showToast('error', "This item is already assigned to someone. Please select another item.");
+          showToast('This item is already assigned to someone. Please select another item.', 'error');
           setIsSubmitting(false);
           return;
         }
@@ -289,7 +289,7 @@ const StaffItemAssignment = () => {
           prev.filter(item => item.id.toString() !== formValues.item_id)
         );
         
-        showToast('success', "Item successfully assigned!");
+        showToast('Item successfully assigned!', 'success');
         
         // Add notification
         addNotification(
@@ -307,7 +307,7 @@ const StaffItemAssignment = () => {
         ? "Failed to update assignment. Please try again." 
         : "Failed to create assignment. Please try again.";
       setError(errorMessage);
-      showToast('error', `${errorMessage} Error: ${err.message}`);
+      showToast(`${errorMessage} Error: ${err.message}`, 'error');
       console.error("API Error:", err.response ? err.response.data : err.message);
     } finally {
       setIsSubmitting(false);
@@ -352,7 +352,7 @@ const StaffItemAssignment = () => {
         );
       }
       
-      showToast('success', "Assignment removed successfully");
+      showToast('Assignment removed successfully', 'success');
       
       // If we were editing this assignment, exit edit mode
       if (editMode && editingAssignment && editingAssignment.id === id) {
@@ -361,7 +361,7 @@ const StaffItemAssignment = () => {
     } catch (err) {
       const errorMessage = "Failed to remove assignment";
       setError(errorMessage);
-      showToast('error', `${errorMessage}: ${err.message}`);
+      showToast(`${errorMessage}: ${err.message}`, 'error');
       console.error("Delete error:", err);
     } finally {
       setLoading(false);
