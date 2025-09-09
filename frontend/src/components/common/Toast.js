@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 export const Toast = {
   success: (message, duration = 5000) => {
@@ -140,6 +140,7 @@ const ToastNotification = ({
 // Toast service for managing notifications
 const ToastService = {
   container: null,
+  root: null,
   notifications: [],
 
   success: (message, duration = 5000) => {
@@ -180,12 +181,13 @@ const ToastService = {
     container.className = 'toast-container';
     document.body.appendChild(container);
     ToastService.container = container;
+    ToastService.root = createRoot(container);
   },
 
   render: () => {
-    if (!ToastService.container) return;
+    if (!ToastService.container || !ToastService.root) return;
     
-    ReactDOM.render(
+    ToastService.root.render(
       <div>
         {ToastService.notifications.map(notification => (
           <ToastNotification
@@ -194,8 +196,7 @@ const ToastService = {
             onClose={() => ToastService.remove(notification.id)}
           />
         ))}
-      </div>,
-      ToastService.container
+      </div>
     );
   },
 

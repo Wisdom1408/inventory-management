@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
           
           // Verify token and get user data
           const response = await authAPI.verify();
-          setUser(response.data.user);
+          setUser(response.data);
         } catch (error) {
           console.error('Auth initialization failed:', error);
           localStorage.removeItem('token');
@@ -47,15 +47,18 @@ export const AuthProvider = ({ children }) => {
       // Set token in auth header
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
       
+      // Store user data
       setUser(user);
+      
+      // Navigate to dashboard
       navigate('/dashboard', { replace: true });
       Toast.success('Login successful');
       
       return response.data;
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      console.error('Login error:', error);
+      const message = error.response?.data?.error || 'Login failed';
       setError(message);
       Toast.error(message);
       throw error;
@@ -73,6 +76,7 @@ export const AuthProvider = ({ children }) => {
       Toast.success('Logged out successfully');
       navigate('/login');
     } catch (error) {
+      console.error('Logout error:', error);
       Toast.error('Logout failed');
       throw error;
     }
@@ -86,7 +90,7 @@ export const AuthProvider = ({ children }) => {
       error,
       loading,
       isAuthenticated: !!user,
-      isAdmin: user?.role === 'admin'
+      isAdmin: user?.is_staff === true
     }}>
       {children}
     </AuthContext.Provider>

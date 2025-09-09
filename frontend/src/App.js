@@ -52,51 +52,59 @@ function App() {
                 <ToastContainer />
                 <Suspense fallback={<LoadingSpinner />}>
                   <Routes>
-                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    {/* Public routes */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute>
-                        <ErrorBoundary>
-                          <Dashboard />
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/items/*" element={
-                      <ProtectedRoute>
-                        <ErrorBoundary>
-                          <ItemManagement />
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/staff/*" element={
-                      <ProtectedRoute requiredRole="admin">
-                        <ErrorBoundary>
-                          <StaffManagement />
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/assignments/*" element={
-                      <ProtectedRoute>
-                        <ErrorBoundary>
-                          <AssignmentWorkflow />
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    
-                    <Route path="/admin/*" element={
-                      <ProtectedRoute requiredRole="admin">
-                        <ErrorBoundary>
-                          <AdminConsole />
-                        </ErrorBoundary>
-                      </ProtectedRoute>
-                    } />
-                    
                     <Route path="/unauthorized" element={<Unauthorized />} />
+                    
+                    {/* Protected routes */}
+                    <Route 
+                      path="/dashboard" 
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    <Route 
+                      path="/items/*" 
+                      element={
+                        <ProtectedRoute>
+                          <ItemManagement />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    <Route 
+                      path="/staff/*" 
+                      element={
+                        <ProtectedRoute requiredRole="admin">
+                          <StaffManagement />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    <Route 
+                      path="/assignments/*" 
+                      element={
+                        <ProtectedRoute>
+                          <AssignmentWorkflow />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    <Route 
+                      path="/admin/*" 
+                      element={
+                        <ProtectedRoute requiredRole="admin">
+                          <AdminConsole />
+                        </ProtectedRoute>
+                      } 
+                    />
+                    
+                    {/* Default routes */}
+                    <Route path="/" element={<Navigate to="/login" replace />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
