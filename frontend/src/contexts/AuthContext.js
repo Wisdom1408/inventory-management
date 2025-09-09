@@ -18,21 +18,13 @@ export const AuthProvider = ({ children }) => {
       const storedUser = localStorage.getItem('user');
 
       if (token) {
-        // Configure axios header for DRF TokenAuthentication
-        api.defaults.headers.common['Authorization'] = `Token ${token}`;
         try {
-          // Prefer stored user; if absent we could fetch /auth/profile/
-          if (storedUser) {
-            setUser(JSON.parse(storedUser));
-          } else {
-            try {
-              const profile = await authAPI.verify(); // optional; may not exist
-              const userData = profile.data?.user || profile.user || null;
-              if (userData) setUser(userData);
-            } catch (_) {
-              // Ignore if verify is not available; user will be set on next login
-            }
-          }
+          // Set token in auth header
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          
+          // Verify token and get user data
+          const response = await authAPI.verify();
+          setUser(response.data.user);
         } catch (error) {
           console.error('Auth initialization failed:', error);
           localStorage.removeItem('token');
@@ -64,14 +56,13 @@ export const AuthProvider = ({ children }) => {
       // Configure axios header for DRF TokenAuthentication
       api.defaults.headers.common['Authorization'] = `Token ${token}`;
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
-
-      setUser(userData);
-      Toast.success('Login successful');
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      setUser(user);
       navigate('/dashboard', { replace: true });
       return data;
     } catch (error) {
-      const message = error.response?.data?.error || error.response?.data?.message || 'Login failed';
+      const message = error.response?.data?.message || 'Login failed';
       setError(message);
       Toast.error(message);
       throw error;
@@ -92,6 +83,9 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       Toast.success('Logged out successfully');
       navigate('/login');
+    } catch (error) {
+      Toast.error('Logout failed');
+      throw error;
     }
   };
 
@@ -103,7 +97,7 @@ export const AuthProvider = ({ children }) => {
       error,
       loading,
       isAuthenticated: !!user,
-      isAdmin: user?.role === 'admin'
+      isAdmin: user?.is_staff === true
     }}>
       {children}
     </AuthContext.Provider>

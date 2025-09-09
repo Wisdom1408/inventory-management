@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import useForm from '../../hooks/useForm';
@@ -7,8 +7,9 @@ import Button from '../common/Button';
 import '../../styles/auth.css';
 
 const Login = () => {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, error: authError } = useAuth();
   const navigate = useNavigate();
+  const [loginError, setLoginError] = useState(null);
 
   const {
     values: formData,
@@ -17,7 +18,8 @@ const Login = () => {
     handleChange,
     handleBlur,
     handleSubmit,
-    isSubmitting
+    isSubmitting,
+    setIsSubmitting
   } = useForm({
     initialValues: {
       username: '',
@@ -28,10 +30,13 @@ const Login = () => {
       password: { required: true }
     },
     onSubmit: async (formValues) => {
+      setLoginError(null);
       try {
         await login(formValues);
       } catch (error) {
         console.error('Login failed:', error);
+        setLoginError(error.response?.data?.error || 'Login failed. Please check your credentials.');
+        setIsSubmitting(false);
       }
     }
   });
@@ -46,6 +51,13 @@ const Login = () => {
     <div className="login-container">
       <form onSubmit={handleSubmit}>
         <h2>Sign In</h2>
+        
+        {(loginError || authError) && (
+          <div className="error-message alert">
+            {loginError || authError}
+          </div>
+        )}
+        
         <FormField
           type="text"
           name="username"

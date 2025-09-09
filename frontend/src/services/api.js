@@ -29,6 +29,23 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Add response interceptor to handle errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Handle unauthorized errors (401)
+    if (error.response && error.response.status === 401) {
+      // If not on login page, clear token and redirect to login
+      if (!window.location.pathname.includes('/login')) {
+        localStorage.removeItem('token');
+        delete api.defaults.headers.common['Authorization'];
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Helper to unwrap axios response consistently
 const unwrap = (p) => p.then((res) => res.data);
 

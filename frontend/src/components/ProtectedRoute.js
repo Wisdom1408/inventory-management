@@ -16,11 +16,17 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     );
   }
 
+  // Show loading spinner while authentication state is being determined
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  // Redirect to login if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
+  if (requiredRole && user.role !== requiredRole) {
     return <Navigate to="/unauthorized" replace />;
   }
 

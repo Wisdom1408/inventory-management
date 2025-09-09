@@ -140,6 +140,7 @@ const ToastNotification = ({
 // Toast service for managing notifications
 const ToastService = {
   container: null,
+  root: null,
   notifications: [],
 
   success: (message, duration = 5000) => {
@@ -185,13 +186,8 @@ const ToastService = {
 
   render: () => {
     if (!ToastService.container) return;
-
-    // Use React 18 createRoot API
-    if (!ToastService.root) {
-      ToastService.root = createRoot(ToastService.container);
-    }
-
-    ToastService.root.render(
+    
+    ReactDOM.render(
       <div>
         {ToastService.notifications.map(notification => (
           <ToastNotification
