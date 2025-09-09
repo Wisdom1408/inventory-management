@@ -1,25 +1,15 @@
-
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-// import { AuthProvider } from './contexts/AuthContext'; // Removed - using simple auth
-import { isAuthenticated } from './authUtils';
-import Header from './components/Header';
-import {
-  Dashboard,
-  ItemList,
-  ItemDetail,
-  ItemForm,
-  StaffConsole,
-  StaffForm,
-  StaffItemAssignment,
-  AdminConsole,
-  ExtrasConsole
-} from './components/LazyComponents';
-import Login from './components/Login';
-import Register from './components/Register';
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import ToastContainer from './components/common/ToastContainer';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import Navigation from './components/Navigation';
+import LoadingSpinner from './components/common/LoadingSpinner';
+import ToastContainer from './components/common/ToastContainer';
+import useNetworkStatus from './hooks/useNetworkStatus';
+
+// Import styles
 import './styles.css';
 import './styles/modern.css';
 import './styles/auth.css';
@@ -27,127 +17,93 @@ import './styles/responsive.css';
 import './styles/animations.css';
 import './components/common/common.css';
 import './components/admin/admin.css';
-import { NotificationProvider } from './NotificationSystem';
 
-// New component to handle state and navigation within the Router context
-const MainContent = () => {
-  const location = useLocation();
-  
-  // Force re-render when authentication state changes
-  const [authState, setAuthState] = React.useState(isAuthenticated());
-  
-  React.useEffect(() => {
-    const checkAuth = () => {
-      const currentAuthState = isAuthenticated();
-      if (currentAuthState !== authState) {
-        setAuthState(currentAuthState);
-      }
-    };
-    
-    // Check auth state on location change
-    checkAuth();
-  }, [location.pathname, authState]);
-
-  return (
-    <>
-      <ToastContainer />
-      
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <Header />
-            <Dashboard key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/items" element={
-          <ProtectedRoute>
-            <Header />
-            <ItemList key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/items/:id" element={
-          <ProtectedRoute>
-            <Header />
-            <ItemDetail key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/items/new" element={
-          <ProtectedRoute>
-            <Header />
-            <ItemForm key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/items/:id/edit" element={
-          <ProtectedRoute>
-            <Header />
-            <ItemForm key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/staff" element={
-          <ProtectedRoute>
-            <Header />
-            <StaffConsole key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/staff/new" element={
-          <ProtectedRoute>
-            <Header />
-            <StaffForm key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/staff/:id/edit" element={
-          <ProtectedRoute>
-            <Header />
-            <StaffForm key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/assignments" element={
-          <ProtectedRoute>
-            <Header />
-            <StaffItemAssignment key={location.pathname}/>
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/admin" element={
-          <ProtectedRoute adminOnly={true}>
-            <Header key="admin-header" />
-            <AdminConsole key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/extras" element={
-          <ProtectedRoute adminOnly={true}>
-            <Header key="extras-header" />
-            <ExtrasConsole key={location.pathname} />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </>
-  );
-};
+// Lazy load components
+const Login = React.lazy(() => import('./components/auth/Login'));
+const Register = React.lazy(() => import('./components/auth/Register'));
+const Dashboard = React.lazy(() => import('./components/Dashboard'));
+const ItemManagement = React.lazy(() => import('./components/inventory/ItemManagement'));
+const StaffManagement = React.lazy(() => import('./components/StaffManagement'));
+const AssignmentWorkflow = React.lazy(() => import('./components/assignments/AssignmentWorkflow'));
+const AdminConsole = React.lazy(() => import('./components/AdminConsole'));
+const NotFound = React.lazy(() => import('./components/NotFound'));
+const Unauthorized = React.lazy(() => import('./components/Unauthorized'));
 
 function App() {
+  const isOnline = useNetworkStatus();
+
+  if (!isOnline) {
+    return (
+      <div className="offline-message">
+        <h2>You are offline</h2>
+        <p>Please check your internet connection and try again.</p>
+      </div>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <Router>
-        <NotificationProvider>
-          <div className="app-container">
-            <MainContent />
-          </div>
-        </NotificationProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <div className="app">
+              <Navigation />
+              <main className="main-content">
+                <ToastContainer />
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Routes>
+                    <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    
+                    <Route path="/dashboard" element={
+                      <ProtectedRoute>
+                        <ErrorBoundary>
+                          <Dashboard />
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/items/*" element={
+                      <ProtectedRoute>
+                        <ErrorBoundary>
+                          <ItemManagement />
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/staff/*" element={
+                      <ProtectedRoute requiredRole="admin">
+                        <ErrorBoundary>
+                          <StaffManagement />
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/assignments/*" element={
+                      <ProtectedRoute>
+                        <ErrorBoundary>
+                          <AssignmentWorkflow />
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/admin/*" element={
+                      <ProtectedRoute requiredRole="admin">
+                        <ErrorBoundary>
+                          <AdminConsole />
+                        </ErrorBoundary>
+                      </ProtectedRoute>
+                    } />
+                    
+                    <Route path="/unauthorized" element={<Unauthorized />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
+              </main>
+            </div>
+          </NotificationProvider>
+        </AuthProvider>
       </Router>
     </ErrorBoundary>
   );

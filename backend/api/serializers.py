@@ -1,6 +1,17 @@
 # inventory_management/backend/api/serializers.py
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Item, Category, Supplier, Staff, StaffItemAssignment
+
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'password', 'is_staff', 'is_active']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,188 +1,98 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api, authAPI } from '../services/api';
+import { Toast } from '../components/common/Toast';
 
-// Auth context
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
-// Auth reducer
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case 'LOGIN_START':
-      return { ...state, loading: true, error: null };
-    case 'LOGIN_SUCCESS':
-      return {
-        ...state,
-        loading: false,
-        isAuthenticated: true,
-        user: action.payload.user,
-        token: action.payload.token,
-        error: null
-      };
-    case 'LOGIN_FAILURE':
-      return {
-        ...state,
-        loading: false,
-        isAuthenticated: false,
-        user: null,
-        token: null,
-        error: action.payload
-      };
-    case 'LOGOUT':
-      return {
-        ...state,
-        isAuthenticated: false,
-        user: null,
-        token: null,
-        error: null,
-        loading: false
-      };
-    case 'SET_USER':
-      return {
-        ...state,
-        user: action.payload,
-        isAuthenticated: true
-      };
-    case 'CLEAR_ERROR':
-      return { ...state, error: null };
-    default:
-      return state;
-  }
-};
-
-// Initial state
-const initialState = {
-  isAuthenticated: false,
-  user: null,
-  token: null,
-  loading: false,
-  error: null
-};
-
-// Auth provider component
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Check for existing auth on mount
+  // Initialize auth state
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    const user = localStorage.getItem('user');
-    
-    if (token && user) {
-      try {
-        const parsedUser = JSON.parse(user);
-        dispatch({
-          type: 'LOGIN_SUCCESS',
-          payload: { token, user: parsedUser }
-        });
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
+    const initializeAuth = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (token) {
+        try {
+          // Set token in auth header
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          
+          // Verify token and get user data
+          const response = await authAPI.verify();
+          setUser(response.data.user);
+        } catch (error) {
+          console.error('Auth initialization failed:', error);
+          localStorage.removeItem('token');
+          delete api.defaults.headers.common['Authorization'];
+        }
       }
-    }
+      
+      setLoading(false);
+    };
+
+    initializeAuth();
   }, []);
 
-  // Login function
   const login = async (credentials) => {
-    dispatch({ type: 'LOGIN_START' });
-    
+    setLoading(true);
+    setError(null); // Reset error state
     try {
       const response = await authAPI.login(credentials);
+      const { token, user } = response.data;
+
+      // Set token in auth header
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
       
-      // Store token and user data
-      localStorage.setItem('authToken', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      setUser(user);
+      navigate('/dashboard', { replace: true });
+      Toast.success('Login successful');
       
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: {
-          token: response.token,
-          user: response.user
-        }
-      });
-      
-      return { success: true };
+      return response.data;
     } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Login failed';
-      dispatch({
-        type: 'LOGIN_FAILURE',
-        payload: errorMessage
-      });
-      return { success: false, error: errorMessage };
+      const message = error.response?.data?.message || 'Login failed';
+      setError(message);
+      Toast.error(message);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Register function
-  const register = async (userData) => {
-    dispatch({ type: 'LOGIN_START' });
-    
-    try {
-      const response = await authAPI.register(userData);
-      
-      // Store token and user data
-      localStorage.setItem('authToken', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
-      
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: {
-          token: response.token,
-          user: response.user
-        }
-      });
-      
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.error || 'Registration failed';
-      dispatch({
-        type: 'LOGIN_FAILURE',
-        payload: errorMessage
-      });
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  // Logout function
   const logout = async () => {
     try {
       await authAPI.logout();
+      delete api.defaults.headers.common['Authorization'];
+      localStorage.removeItem('token');
+      setUser(null);
+      Toast.success('Logged out successfully');
+      navigate('/login');
     } catch (error) {
-      console.error('Logout error:', error);
+      Toast.error('Logout failed');
+      throw error;
     }
-    
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    dispatch({ type: 'LOGOUT' });
-  };
-
-  // Update user profile
-  const updateUser = (userData) => {
-    localStorage.setItem('user', JSON.stringify(userData));
-    dispatch({ type: 'SET_USER', payload: userData });
-  };
-
-  // Clear error
-  const clearError = () => {
-    dispatch({ type: 'CLEAR_ERROR' });
-  };
-
-  const value = {
-    ...state,
-    login,
-    register,
-    logout,
-    updateUser,
-    clearError
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{
+      user,
+      login,
+      logout,
+      error,
+      loading,
+      isAuthenticated: !!user,
+      isAdmin: user?.role === 'admin'
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

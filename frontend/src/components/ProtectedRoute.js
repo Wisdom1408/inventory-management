@@ -1,18 +1,17 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { isAuthenticated } from '../authUtils';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
-  // Check if user is authenticated
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
+const ProtectedRoute = ({ children, requiredRole }) => {
+  const { user, isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // For now, skip admin-only checks since we don't have user roles in simple auth
-  // You can enhance this later when you integrate with backend user management
-  if (adminOnly) {
-    // For demo purposes, allow access to admin routes
-    // In production, check actual user roles from backend
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;

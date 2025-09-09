@@ -2,9 +2,9 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     ItemViewSet, CategoryViewSet, SupplierViewSet,
-    StaffViewSet, StaffItemAssignmentViewSet
+    StaffViewSet, StaffItemAssignmentViewSet,UserViewSet
 )
-from .user_views import UserViewSet
+
 from .auth_views import (
     register, login, logout, password_reset_request, 
     password_reset_confirm, user_profile

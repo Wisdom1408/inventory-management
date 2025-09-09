@@ -27,7 +27,7 @@ export const useApi = (apiCall, dependencies = [], immediate = true) => {
     if (immediate) {
       execute();
     }
-  }, dependencies);
+  }, [immediate, execute]);
 
   return { data, loading, error, execute, refetch: execute };
 };

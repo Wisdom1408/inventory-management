@@ -1,6 +1,5 @@
-
 import { useState, useCallback, useEffect } from 'react';
-import * as validators from '../utils/validators';
+import * as validators from '../utils/validation';
 
 /**
  * Custom hook for form handling with validation
@@ -70,7 +69,8 @@ const useForm = (initialValues, validationRules, onSubmit) => {
     }
 
     if (rules.type === 'phoneNumber') {
-      const error = validators.validatePhoneNumber(value);
+      // Change validatePhoneNumber to validatePhone
+      const error = validators.validatePhone(value);
       if (error) return error;
     }
 
@@ -128,7 +128,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
       }
     });
     setErrors(touchedErrors);
-  }, [values, validationRules, touched]);
+  }, [values, touched, validateField]); // Added validateField
 
   // Handle field change
   const handleChange = useCallback((e) => {
@@ -156,7 +156,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
       ...prevErrors,
       [name]: error
     }));
-  }, [values, validationRules]);
+  }, [values, validateField]); // Added validateField
 
   // Set a specific field value
   const setFieldValue = useCallback((name, value) => {
@@ -212,7 +212,7 @@ const useForm = (initialValues, validationRules, onSubmit) => {
         setIsSubmitting(false);
       }
     }
-  }, [values, validationRules, onSubmit]);
+  }, [values, onSubmit, validateField]); // Added validateField
 
   // Reset form to initial values
   const resetForm = useCallback(() => {

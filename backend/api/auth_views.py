@@ -13,6 +13,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.conf import settings
 import re
+from .serializers import UserSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -243,3 +245,22 @@ def user_profile(request):
         'is_superuser': user.is_superuser,
         'date_joined': user.date_joined,
     }, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    user = authenticate(username=username, password=password)
+    
+    if user is not None:
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'token': str(refresh.access_token),
+            'user': UserSerializer(user).data
+        })
+    return Response(
+        {'message': 'Invalid credentials'}, 
+        status=status.HTTP_401_UNAUTHORIZED
+    )

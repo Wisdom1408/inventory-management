@@ -1,5 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
+
+export const Toast = {
+  success: (message, duration = 5000) => {
+    ToastService.show(message, 'success', duration);
+  },
+  error: (message, duration = 5000) => {
+    ToastService.show(message, 'error', duration);
+  },
+  warning: (message, duration = 5000) => {
+    ToastService.show(message, 'warning', duration);
+  },
+  info: (message, duration = 5000) => {
+    ToastService.show(message, 'info', duration);
+  }
+};
 
 /**
  * Toast notification component for displaying messages
@@ -11,7 +26,7 @@ import React, { useState, useEffect } from 'react';
  * @param {Function} props.onClose - Function to call when toast is closed
  * @param {boolean} props.showProgress - Whether to show progress indicator
  */
-const Toast = ({
+const ToastNotification = ({
   type = 'info',
   message,
   duration = 5000,
@@ -122,4 +137,73 @@ const Toast = ({
   );
 };
 
-export default Toast;
+// Toast service for managing notifications
+const ToastService = {
+  container: null,
+  notifications: [],
+
+  success: (message, duration = 5000) => {
+    ToastService.show(message, 'success', duration);
+  },
+
+  error: (message, duration = 5000) => {
+    ToastService.show(message, 'error', duration);
+  },
+
+  warning: (message, duration = 5000) => {
+    ToastService.show(message, 'warning', duration);
+  },
+
+  info: (message, duration = 5000) => {
+    ToastService.show(message, 'info', duration);
+  },
+
+  show: (message, type, duration) => {
+    if (!ToastService.container) {
+      ToastService.createContainer();
+    }
+
+    const id = Date.now();
+    const notification = {
+      id,
+      message,
+      type,
+      duration
+    };
+
+    ToastService.notifications.push(notification);
+    ToastService.render();
+  },
+
+  createContainer: () => {
+    const container = document.createElement('div');
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+    ToastService.container = container;
+  },
+
+  render: () => {
+    if (!ToastService.container) return;
+    
+    ReactDOM.render(
+      <div>
+        {ToastService.notifications.map(notification => (
+          <ToastNotification
+            key={notification.id}
+            {...notification}
+            onClose={() => ToastService.remove(notification.id)}
+          />
+        ))}
+      </div>,
+      ToastService.container
+    );
+  },
+
+  remove: (id) => {
+    ToastService.notifications = ToastService.notifications.filter(n => n.id !== id);
+    ToastService.render();
+  }
+};
+
+export { ToastNotification };
+export default ToastService;

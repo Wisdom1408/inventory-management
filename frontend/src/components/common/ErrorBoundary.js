@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 /**
  * Error Boundary component to catch JavaScript errors in child components
  * and display a fallback UI instead of crashing the whole app
  */
-class ErrorBoundary extends Component {
+class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
@@ -39,7 +39,7 @@ class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       // You can render any custom fallback UI
-      return (
+      return this.props.fallback || (
         <div className="error-boundary">
           <div className="error-boundary-content">
             <div className="error-boundary-icon">

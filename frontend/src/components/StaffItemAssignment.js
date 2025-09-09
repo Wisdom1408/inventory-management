@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { inventoryAPI } from '../services/api';
 import AssignmentItem from './AssignmentItem';
@@ -33,6 +32,11 @@ const StaffItemAssignment = () => {
   const [formErrors, setFormErrors] = useState({});
   const [formTouched, setFormTouched] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [filters, setFilters] = useState({
+    status: 'all',
+    department: 'all'
+  });
   
   // Get notification context
   const { addNotification } = useNotifications();
@@ -407,16 +411,45 @@ const StaffItemAssignment = () => {
     );
   }, [assignments, searchTerm]);
 
-  // Get current assignments for pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAssignments = filteredAssignments.slice(indexOfFirstItem, indexOfLastItem);
-  
+  // Add sorting functionality
+  const sortedAssignments = useMemo(() => {
+    if (!sortConfig.key) return assignments;
+    
+    return [...assignments].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+  }, [assignments, sortConfig]);
+
+  // Add filtering
+  const finalFilteredAssignments = useMemo(() => {
+    return sortedAssignments.filter(assignment => {
+      if (filters.status !== 'all' && assignment.status !== filters.status) {
+        return false;
+      }
+      if (filters.department !== 'all' && assignment.department !== filters.department) {
+        return false;
+      }
+      return true;
+    });
+  }, [sortedAssignments, filters]);
+
+  // Add pagination
+  const paginatedAssignments = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return finalFilteredAssignments.slice(start, start + itemsPerPage);
+  }, [finalFilteredAssignments, currentPage, itemsPerPage]);
+
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   
   // Calculate total pages
-  const totalPages = Math.ceil(filteredAssignments.length / itemsPerPage);
+  const totalPages = Math.ceil(finalFilteredAssignments.length / itemsPerPage);
 
   if (loading && assignments.length === 0 && staff.length === 0 && items.length === 0) {
     return (
@@ -655,7 +688,7 @@ const StaffItemAssignment = () => {
             <>
               <div className="assignment-list-container">
                 <ul className="assignment-list">
-                  {currentAssignments.map(assignment => (
+                  {paginatedAssignments.map(assignment => (
                     <AssignmentItem
                       key={assignment.id}
                       assignment={assignment}
